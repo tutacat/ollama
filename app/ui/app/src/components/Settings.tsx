@@ -20,7 +20,7 @@ import { Settings as SettingsType } from "@/gotypes";
 import { useNavigate } from "@tanstack/react-router";
 import { useUser } from "@/hooks/useUser";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getSettings, updateSettings, checkForUpdate } from "@/api";
+import { getSettings, updateSettings } from "@/api";
 
 function AnimatedDots() {
   return (
@@ -40,12 +40,6 @@ export default function Settings() {
   const queryClient = useQueryClient();
   const [showSaved, setShowSaved] = useState(false);
   const [restartMessage, setRestartMessage] = useState(false);
-  const [updateInfo, setUpdateInfo] = useState<{
-    currentVersion: string;
-    availableVersion: string;
-    updateAvailable: boolean;
-    updateDownloaded: boolean;
-  } | null>(null);
   const {
     user,
     isAuthenticated,
@@ -83,10 +77,6 @@ export default function Settings() {
 
   useEffect(() => {
     refetchUser();
-    // Check for updates on mount
-    checkForUpdate()
-      .then(setUpdateInfo)
-      .catch((err) => console.error("Error checking for update:", err));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -360,41 +350,12 @@ export default function Settings() {
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start space-x-3 flex-1">
                     <ArrowDownTrayIcon className="mt-1 h-5 w-5 flex-shrink-0 text-black dark:text-neutral-100" />
-                    <div className="flex-1">
+                    <div>
                       <Label>Auto-download updates</Label>
                       <Description>
-                        {settings.AutoUpdateEnabled ? (
-                          <>
-                            Automatically downloads updates when available.
-                            <div className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
-                              Current version: {updateInfo?.currentVersion || "Loading..."}
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            Manually download updates.
-                            <div className="mt-3 p-3 bg-zinc-50 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
-                              <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-zinc-600 dark:text-zinc-400">Current version: {updateInfo?.currentVersion || "Loading..."}</span>
-                                </div>
-                                {updateInfo?.availableVersion && (
-                                  <div className="flex justify-between">
-                                    <span className="text-zinc-600 dark:text-zinc-400">Available version: {updateInfo?.availableVersion}</span>
-                                  </div>
-                                )}
-                              </div>
-                              <a
-                                href="https://ollama.com/download"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-3 inline-block text-sm text-neutral-600 dark:text-neutral-400 underline"
-                              >
-                                Download new version →
-                              </a>
-                            </div>
-                          </>
-                        )}
+                        {settings.AutoUpdateEnabled
+                          ? "Automatically download updates when available."
+                          : "Updates will not be downloaded automatically."}
                       </Description>
                     </div>
                   </div>
